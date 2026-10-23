@@ -1,0 +1,255 @@
+---
+title: "Overall survival in advanced lung cancer: Kaplan-Meier and Cox regression analysis"
+subtitle: "Statistical analysis plan and analysis report (NCCTG lung cancer data, R survival package)"
+author: "Moussa Ndiaye"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 5, dpi = 120)
+library(survival)
+library(dplyr)
+library(ggplot2)
+library(broom)
+```
+
+# Statistical analysis plan (SAP)
+
+*This section was written before running any analysis. Commit it to the repository before the results sections so the history shows the plan came first.*
+
+## Objective
+
+To describe overall survival (OS) in patients with advanced lung cancer and to estimate the association of sex, age and ECOG performance status with OS.
+
+## Data source
+
+The `lung` dataset from the R `survival` package: 228 patients with advanced lung cancer from the North Central Cancer Treatment Group (NCCTG). Reference: Loprinzi CL et al. *Prospective evaluation of prognostic variables from patient-completed questionnaires.* J Clin Oncol 1994;12(3):601-607.
+
+## Endpoint and definitions
+
+- **Endpoint:** overall survival, defined as time in days from enrolment to death from any cause.
+- **Event:** death (`status = 2` in the source data). Patients alive at last contact are censored (`status = 1`).
+- **Covariates:** sex (male, female), age at enrolment (analysed per 10-year increase), ECOG performance status (0, 1, 2 or more; the single patient with ECOG 3 is grouped with ECOG 2 to avoid an unstable category).
+
+## Statistical methods
+
+1. **Descriptive statistics:** number of patients and events, median age (interquartile range), counts and percentages for categorical variables, number of missing values per variable.
+2. **Follow-up:** median follow-up estimated with the reverse Kaplan-Meier method.
+3. **Survival estimation:** Kaplan-Meier estimates of OS, with median OS and 95% confidence interval, overall and by sex.
+4. **Group comparison:** log-rank test of OS between men and women.
+5. **Cox proportional hazards regression:** univariable models for each covariate, then one multivariable model including sex, age and ECOG. Results are reported as hazard ratios (HR) with 95% confidence intervals.
+6. **Assumption check:** proportional hazards assessed with scaled Schoenfeld residuals (`cox.zph`), globally and for each covariate, with residual plots.
+7. **Missing data:** complete-case analysis. The number of patients excluded from each model is reported.
+8. **Significance level:** two-sided alpha of 0.05. The analysis is exploratory and no adjustment for multiple testing is applied.
+
+## Software
+
+R, with the packages `survival`, `dplyr`, `ggplot2` and `broom`. Versions are listed at the end of the report.
+
+# Data preparation
+
+```{r data}
+lung_df <- survival::lung %>%
+  mutate(
+    event  = as.integer(status == 2),                 # 1 = death, 0 = censored
+    sex_f  = factor(sex, levels = c(1, 2), labels = c("Male", "Female")),
+    ecog   = factor(pmin(ph.ecog, 2), levels = 0:2,
+                    labels = c("0", "1", "2+")),      # ECOG 3 (n = 1) grouped with 2
+    age10  = age / 10                                 # hazard ratio per 10 years
+  )
+
+stopifnot(nrow(lung_df) == 228)
+```
+
+# Descriptive statistics
+
+```{r descriptive}
+n_total  <- nrow(lung_df)
+n_events <- sum(lung_df$event)
+
+cat("Patients:", n_total, "\n")
+cat("Deaths:", n_events, sprintf("(%.1f%%)", 100 * n_events / n_total), "\n")
+cat("Censored:", n_total - n_events, "\n\n")
+
+age_q <- quantile(lung_df$age, c(0.25, 0.5, 0.75))
+cat(sprintf("Age, median (IQR): %.0f (%.0f - %.0f)\n", age_q[2], age_q[1], age_q[3]))
+
+cat_table <- function(x, label) {
+  tab <- table(x, useNA = "ifany")
+  data.frame(variable = label,
+             level = names(tab),
+             n = as.integer(tab),
+             percent = round(100 * as.integer(tab) / sum(tab), 1))
+}
+
+bind_rows(
+  cat_table(lung_df$sex_f, "Sex"),
+  cat_table(lung_df$ecog,  "ECOG performance status")
+)
+
+missing_tab <- data.frame(
+  variable = c("sex", "age", "ecog"),
+  n_missing = c(sum(is.na(lung_df$sex_f)), sum(is.na(lung_df$age)),
+                sum(is.na(lung_df$ecog)))
+)
+missing_tab
+```
+
+# Follow-up and survival estimation
+
+## Median follow-up (reverse Kaplan-Meier)
+
+```{r followup}
+fu_fit <- survfit(Surv(time, 1 - event) ~ 1, data = lung_df)
+fu_tab <- summary(fu_fit)$table
+cat(sprintf("Median follow-up: %.0f days (95%% CI %.0f - %.0f)\n",
+            fu_tab["median"], fu_tab["0.95LCL"], fu_tab["0.95UCL"]))
+```
+
+## Overall survival, all patients
+
+```{r km-all}
+km_all <- survfit(Surv(time, event) ~ 1, data = lung_df)
+km_tab <- summary(km_all)$table
+cat(sprintf("Median OS: %.0f days (95%% CI %.0f - %.0f)\n",
+            km_tab["median"], km_tab["0.95LCL"], km_tab["0.95UCL"]))
+
+summary(km_all, times = c(180, 365, 730))
+```
+
+## Overall survival by sex
+
+```{r km-sex}
+km_sex <- survfit(Surv(time, event) ~ sex_f, data = lung_df)
+
+plot(km_sex, col = c("#1F3864", "#C0504D"), lwd = 2, mark.time = TRUE,
+     xlab = "Time since enrolment (days)",
+     ylab = "Overall survival probability",
+     main = "Kaplan-Meier estimates of overall survival by sex")
+legend("topright", legend = c("Male", "Female"),
+       col = c("#1F3864", "#C0504D"), lwd = 2, bty = "n")
+
+sex_tab <- summary(km_sex)$table
+data.frame(
+  sex = c("Male", "Female"),
+  patients = sex_tab[, "records"],
+  deaths = sex_tab[, "events"],
+  median_OS_days = sex_tab[, "median"],
+  CI95_lower = sex_tab[, "0.95LCL"],
+  CI95_upper = sex_tab[, "0.95UCL"],
+  row.names = NULL
+)
+```
+
+## Log-rank test, men versus women
+
+```{r logrank}
+lr <- survdiff(Surv(time, event) ~ sex_f, data = lung_df)
+lr
+cat(sprintf("Log-rank chi-square = %.2f, df = 1, p = %.4f\n",
+            lr$chisq, pchisq(lr$chisq, df = 1, lower.tail = FALSE)))
+```
+
+# Cox proportional hazards regression
+
+## Univariable models
+
+```{r cox-uni}
+fit_uni <- function(formula_rhs) {
+  f <- as.formula(paste("Surv(time, event) ~", formula_rhs))
+  m <- coxph(f, data = lung_df)
+  tidy(m, exponentiate = TRUE, conf.int = TRUE) %>%
+    mutate(n_analysed = m$n, model = "Univariable")
+}
+
+uni_results <- bind_rows(
+  fit_uni("sex_f"),
+  fit_uni("age10"),
+  fit_uni("ecog")
+)
+
+uni_results %>%
+  transmute(model, term, n_analysed,
+            HR = round(estimate, 2),
+            CI95_lower = round(conf.low, 2),
+            CI95_upper = round(conf.high, 2),
+            p_value = signif(p.value, 3))
+```
+
+## Multivariable model
+
+```{r cox-multi}
+cox_multi <- coxph(Surv(time, event) ~ sex_f + age10 + ecog, data = lung_df)
+
+cat("Patients in the model:", cox_multi$n,
+    "| excluded for missing data:", nrow(lung_df) - cox_multi$n, "\n")
+cat("Events in the model:", cox_multi$nevent, "\n\n")
+
+multi_results <- tidy(cox_multi, exponentiate = TRUE, conf.int = TRUE) %>%
+  mutate(term = recode(term,
+                       sex_fFemale = "Female vs Male",
+                       age10       = "Age (per 10 years)",
+                       ecog1       = "ECOG 1 vs 0",
+                       `ecog2+`    = "ECOG 2+ vs 0"))
+
+multi_results %>%
+  transmute(term,
+            HR = round(estimate, 2),
+            CI95_lower = round(conf.low, 2),
+            CI95_upper = round(conf.high, 2),
+            p_value = signif(p.value, 3))
+
+cat(sprintf("\nConcordance (C-index): %.3f\n", summary(cox_multi)$concordance[1]))
+```
+
+## Forest plot
+
+```{r forest, fig.height = 3.5}
+ggplot(multi_results, aes(x = estimate, y = reorder(term, estimate))) +
+  geom_vline(xintercept = 1, linetype = "dashed", colour = "grey50") +
+  geom_pointrange(aes(xmin = conf.low, xmax = conf.high),
+                  colour = "#1F3864", size = 0.6) +
+  scale_x_log10() +
+  labs(x = "Hazard ratio (log scale, 95% CI)", y = NULL,
+       title = "Multivariable Cox model for overall survival") +
+  theme_minimal(base_size = 12)
+```
+
+# Proportional hazards assumption
+
+```{r ph-test}
+zph <- cox.zph(cox_multi, terms = FALSE)
+zph
+```
+
+```{r ph-plots, fig.height = 7}
+par(mfrow = c(2, 2))
+plot(zph)
+par(mfrow = c(1, 1))
+```
+
+*How to read this:* a small p-value for a covariate, or a clear trend in its residual plot over time, suggests that its effect changes over time. Report which covariates, if any, show such a signal, and discuss the consequence for interpreting the single hazard ratio.
+
+# Interpretation and limitations
+
+*Complete this section in your own words after reading the results. Points to cover:*
+
+- Which covariates are associated with survival, and the size and precision of the hazard ratios.
+- Whether the proportional hazards assumption holds for each covariate.
+- The sample is small (228 patients, one trial population from the 1980s), so confidence intervals are wide and results do not generalise to current practice.
+- Associations are not causal: the model describes prognosis, not treatment effects.
+- Complete-case analysis excludes patients with missing ECOG status.
+- Several tests were run without multiplicity adjustment, so p-values are exploratory.
+
+# Reproducibility
+
+```{r session}
+sessionInfo()
+```
