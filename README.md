@@ -44,7 +44,7 @@ rmarkdown::render("survival_lung_analysis.Rmd")
 
 No data file is needed: the dataset is included in the `survival` package.
 
-Limitations
+## Limitations
 
 - The cohort is relatively small and originates from a historical clinical trial population.
 
