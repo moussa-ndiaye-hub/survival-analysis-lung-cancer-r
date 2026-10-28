@@ -32,6 +32,9 @@ Then render the report:
 ```r
 rmarkdown::render("survival_lung_analysis.Rmd")
 ```
+## 📊 View the report
+
+[**Open the full survival analysis report**](https://moussa-ndiaye-hub.github.io/survival-analysis-lung-cancer-r/survival_lung_analysis.html)
 
 No data file is needed: the dataset is included in the `survival` package.
 
