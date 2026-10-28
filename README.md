@@ -2,6 +2,10 @@
 
 Survival analysis of the NCCTG advanced lung cancer data (`lung` dataset, R `survival` package), written as a short statistical analysis plan followed by a fully reproducible report.
 
+## View the report
+
+[**Open the full survival analysis report**](https://moussa-ndiaye-hub.github.io/survival-analysis-lung-cancer-r/survival_lung_analysis.html)
+
 ## What this project covers
 
 - A statistical analysis plan (objective, endpoint, definitions, methods, missing data handling) written before the analysis
@@ -32,9 +36,6 @@ Then render the report:
 ```r
 rmarkdown::render("survival_lung_analysis.Rmd")
 ```
-## View the report
-
-[**Open the full survival analysis report**](https://moussa-ndiaye-hub.github.io/survival-analysis-lung-cancer-r/survival_lung_analysis.html)
 
 No data file is needed: the dataset is included in the `survival` package.
 
@@ -45,3 +46,5 @@ Loprinzi CL, Laurie JA, Wieand HS, et al. Prospective evaluation of prognostic v
 ## Author
 
 Moussa Ndiaye
+Pharmacometrician (Pharmacokinetics/Pharmacodynamics) · Biostatistics ·  Clinical Research
+
