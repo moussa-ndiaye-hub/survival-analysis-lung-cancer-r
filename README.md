@@ -16,6 +16,25 @@ Survival analysis of the NCCTG advanced lung cancer data (`lung` dataset, R `sur
 - Proportional hazards assumption checked with scaled Schoenfeld residuals (`cox.zph`)
 - Discussion of limitations (small sample, complete-case analysis, no multiplicity adjustment)
 
+## Statistical Methods
+
+- Descriptive statistics and reverse Kaplan–Meier estimation of follow-up.
+- Kaplan–Meier survival curves and median overall survival.
+- Log-rank test for group comparisons.
+- Univariable and multivariable Cox proportional hazards models.
+- Hazard ratios (HRs) with 95% confidence intervals.
+- Model diagnostics using cox.zph.
+- Complete-case analysis and discussion of limitations.
+
+## Key Findings
+
+- In this cohort, median overall survival was 310 days (95% CI: 285–363).
+- Sex: Female sex was associated with a lower estimated hazard of death in the adjusted Cox model (HR 0.58, 95% CI: 0.41–0.80).
+- Performance status: Higher ECOG scores were associated with a higher estimated hazard of death compared with ECOG 0.
+- Age: The association between age and survival was not statistically conclusive based on the reported confidence interval.
+- Model diagnostics: The global test did not reject the proportional hazards assumption (p = 0.26).
+- These results describe associations in this dataset and should not be interpreted as causal effects.
+
 ## Repository content
 
 | File | Description |
@@ -47,13 +66,9 @@ No data file is needed: the dataset is included in the `survival` package.
 ## Limitations
 
 - The cohort is relatively small and originates from a historical clinical trial population.
-
 - Missing ECOG data result in one patient being excluded from the multivariable model.
-
 - Multiple statistical tests were conducted without multiplicity adjustment.
-
 - Findings may not generalize to contemporary clinical practice.
-
 - Prognostic associations do not establish causality.
 
 ## Data source
@@ -64,5 +79,5 @@ Loprinzi CL, Laurie JA, Wieand HS, et al. Prospective evaluation of prognostic v
 
 Moussa Ndiaye
 
-- Pharmacometrician (Pharmacokinetics/Pharmacodynamics) · Biostatistics ·  Clinical Research
+- Pharmacometrics (Pharmacokinetics/Pharmacodynamics) · Biostatistics ·  Clinical Research
 
