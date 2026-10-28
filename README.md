@@ -46,5 +46,6 @@ Loprinzi CL, Laurie JA, Wieand HS, et al. Prospective evaluation of prognostic v
 ## Author
 
 Moussa Ndiaye
-Pharmacometrician (Pharmacokinetics/Pharmacodynamics) · Biostatistics ·  Clinical Research
+
+- Pharmacometrician (Pharmacokinetics/Pharmacodynamics) · Biostatistics ·  Clinical Research
 
