@@ -6,35 +6,6 @@ Survival analysis of the NCCTG advanced lung cancer data (`lung` dataset, R `sur
 
 [**Open the full survival analysis report**](https://moussa-ndiaye-hub.github.io/survival-analysis-lung-cancer-r/survival_lung_analysis.html)
 
-##Project at a Glance
-
-Item
-
-Description
-
-Domain
-
-Biostatistics · Clinical Research
-
-Dataset
-
-NCCTG advanced lung cancer (survival::lung)
-
-Sample size
-
-228 patients
-
-Language
-
-R
-
-Methods
-
-Kaplan–Meier, log-rank test, Cox regression
-
-Deliverables
-
-Statistical analysis plan, reproducible R Markdown report, HTML report
 ## What this project covers
 
 - A statistical analysis plan (objective, endpoint, definitions, methods, missing data handling) written before the analysis
