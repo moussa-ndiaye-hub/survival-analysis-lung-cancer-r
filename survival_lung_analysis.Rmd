@@ -239,8 +239,6 @@ par(mfrow = c(1, 1))
 
 # Interpretation and limitations
 
-*Complete this section in your own words after reading the results. Points to cover:*
-
 - Which covariates are associated with survival, and the size and precision of the hazard ratios.
 - Whether the proportional hazards assumption holds for each covariate.
 - The sample is small (228 patients, one trial population from the 1980s), so confidence intervals are wide and results do not generalise to current practice.
