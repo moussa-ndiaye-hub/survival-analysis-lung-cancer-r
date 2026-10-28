@@ -44,6 +44,18 @@ rmarkdown::render("survival_lung_analysis.Rmd")
 
 No data file is needed: the dataset is included in the `survival` package.
 
+Limitations
+
+- The cohort is relatively small and originates from a historical clinical trial population.
+
+- Missing ECOG data result in one patient being excluded from the multivariable model.
+
+- Multiple statistical tests were conducted without multiplicity adjustment.
+
+- Findings may not generalize to contemporary clinical practice.
+
+- Prognostic associations do not establish causality.
+
 ## Data source
 
 Loprinzi CL, Laurie JA, Wieand HS, et al. Prospective evaluation of prognostic variables from patient-completed questionnaires. North Central Cancer Treatment Group. *J Clin Oncol* 1994;12(3):601-607.
