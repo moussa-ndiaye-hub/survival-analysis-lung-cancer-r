@@ -235,7 +235,7 @@ plot(zph)
 par(mfrow = c(1, 1))
 ```
 
-*How to read this:* a small p-value for a covariate, or a clear trend in its residual plot over time, suggests that its effect changes over time. Report which covariates, if any, show such a signal, and discuss the consequence for interpreting the single hazard ratio.
+*The global test based on Schoenfeld residuals did not show statistically significant evidence of a violation of the proportional hazards assumption (p = 0.264). The individual tests should also be considered alongside the residual plots. A non-significant test does not prove that the assumption is fully satisfied, particularly with a relatively small sample.
 
 # Interpretation and limitations
 
@@ -246,7 +246,7 @@ par(mfrow = c(1, 1))
 - Complete-case analysis excludes patients with missing ECOG status.
 - Several tests were run without multiplicity adjustment, so p-values are exploratory.
 
-In this cohort of 228 patients, median overall survival was 310 days (95% CI 285-363). Women survived longer than men (median 426 vs 270 days; log-rank p = 0.001). In the multivariable Cox model (227 patients, 164 deaths), female sex was associated with a lower risk of death (HR 0.58, 95% CI 0.41-0.80). A worse performance status was associated with a higher risk (ECOG 1 vs 0: HR 1.51, 95% CI 1.02-2.23; ECOG 2+ vs 0: HR 2.50, 95% CI 1.60-3.90). Age was not clearly associated with survival (HR 1.12 per 10 years, 95% CI 0.93-1.34). The proportional hazards assumption was not rejected (global test p = 0.26), although this test has limited power in a sample of this size.
+In this cohort of 228 patients, median overall survival was 310 days (95% CI 285-363). Women survived longer than men (median 426 vs 270 days; log-rank p = 0.001). In the multivariable Cox model (227 patients, 164 deaths), female sex was associated with a lower risk of death (HR 0.58, 95% CI 0.41-0.80). A worse performance status was associated with a higher risk (ECOG 1 vs 0: HR 1.51, 95% CI 1.02-2.23; ECOG 2+ vs 0: HR 2.50, 95% CI 1.60-3.90). Age was not clearly associated with survival (HR 1.12 per 10 years, 95% CI 0.93-1.34). The proportional hazards assumption was not rejected (global test p = 0.26), although this test has limited power in a sample of this size. This report presents the analysis objectives, the statistical methods used, and the results obtained from the NCCTG lung cancer dataset. The analysis plan is documented alongside the code to make the workflow transparent and reproducible.
 
 Limitations: the sample is small (228 patients) and comes from a trial population from the 1980s, so results may not reflect current practice. The model describes prognosis and does not show causal effects. One patient was excluded for missing ECOG status. Several tests were run without multiplicity adjustment, so p-values are exploratory.
 
